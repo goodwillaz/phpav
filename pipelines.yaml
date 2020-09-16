@@ -1,0 +1,17 @@
+image: harbor.gwaz.org/gwaz/php
+
+pipelines:
+  branches:
+    default:
+      - step:
+          services:
+            - clamav
+          script:
+            - sleep 30 # allow time for clamavd to start up
+            - composer install --no-interaction --no-progress
+            - composer run test
+
+definitions:
+  services:
+    clamav:
+      image: dinkel/clamavd
