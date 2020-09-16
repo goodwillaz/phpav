@@ -1,9 +1,10 @@
 <?php
 
-namespace Gwaz\Antivirus;
+namespace Zuba\Antivirus;
 
 class ClamdHandler implements AntivirusHandlerInterface
 {
+
     /**
      * @var array
      */
@@ -11,6 +12,7 @@ class ClamdHandler implements AntivirusHandlerInterface
 
     /**
      * @param array $config
+     * @return void
      */
     public function __construct(array $config)
     {
@@ -55,29 +57,26 @@ class ClamdHandler implements AntivirusHandlerInterface
      *
      * @param string $path
      * @return array
-     * @throws \RuntimeException
-     * @throws \LengthException
      */
     public function scan($path)
     {
-        return $this->streamScan(file_get_contents($path));
+        $results = $this->sendCommand("SCAN $path");
+
+        return $this->parseResults($results);
     }
 
     /**
      * Scan a string for viruses.
      * Returns same array as scan().
      *
-     * @param string $string
+     * @param string $stream
      * @return array
-     * @throws \RuntimeException
-     * @throws \LengthException
      */
     public function streamScan($string)
     {
         // Make sure the stream isn't too big!
         if ($this->config['streamMaxLength'] < $length = strlen($string)) {
-            throw new \LengthException(
-                "Stream length ($length bytes) exceeds maximum ({$this->config['streamMaxLength']}) bytes");
+            throw new \LengthException("Stream length ($length bytes) exceeds maximum ({$this->config['streamMaxLength']} bytes");
         }
 
         // Create our data to send to sendCommand
@@ -108,7 +107,6 @@ class ClamdHandler implements AntivirusHandlerInterface
      *
      * @param $command
      * @return string
-     * @throws \RuntimeException
      */
     protected function sendCommand($command)
     {
@@ -121,7 +119,6 @@ class ClamdHandler implements AntivirusHandlerInterface
      * Create a stream socket client used for sending data to Clamd
      *
      * @return resource
-     * @throws \RuntimeException
      */
     protected function createStream()
     {
@@ -129,7 +126,7 @@ class ClamdHandler implements AntivirusHandlerInterface
         $stream = @stream_socket_client($this->config['socket'], $errno, $errstr);
 
         if (!$stream) {
-            $error = $errno !== 0 ? $errstr : 'An unknown error occurred connecting to the ClamAV daemon';
+            $error = $errno != 0 ? $errstr : 'An unknown error occurred connecting to the ClamAV daemon';
             throw new \RuntimeException($error, $errno);
         }
 
@@ -150,7 +147,7 @@ class ClamdHandler implements AntivirusHandlerInterface
 
         list(, $file, $virus, $result) = $match;
 
-        $result = $result === 'OK' ? self::RESULT_OK : ($result === 'ERROR' ? self::RESULT_ERROR : self::RESULT_FOUND);
+        $result = $result == 'OK' ? self::RESULT_OK : ($result == 'ERROR' ? self::RESULT_ERROR : self::RESULT_FOUND);
 
         return compact('file', 'result', 'virus');
     }
@@ -160,10 +157,8 @@ class ClamdHandler implements AntivirusHandlerInterface
      *
      * @param $conf
      * @return array
-     * @throws \InvalidArgumentException
      */
-    protected function parseConf($conf)
-    {
+    protected function parseConf($conf) {
         if (!is_readable($conf)) {
             throw new \InvalidArgumentException("$conf is not readable.");
         }

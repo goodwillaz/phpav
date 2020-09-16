@@ -1,6 +1,6 @@
 <?php
 
-namespace Gwaz\Antivirus;
+namespace Zuba\Antivirus;
 
 class Scanner implements ScannerInterface
 {
@@ -17,6 +17,7 @@ class Scanner implements ScannerInterface
 
     /**
      * @param type AntivirusHandlerInterface $handler
+     * @return void
      */
     public function __construct(AntivirusHandlerInterface $handler)
     {
@@ -30,7 +31,7 @@ class Scanner implements ScannerInterface
      */
     public function alive()
     {
-        return $this->handler->ping() === 'PONG';
+        return $this->handler->ping() == 'PONG';
     }
 
     /**
@@ -47,18 +48,13 @@ class Scanner implements ScannerInterface
      * Scan the given file.
      * Returns an array containing the file and it's result
      *
-     * @param string $file
+     * @param string $path
      * @return array
-     * @throws \InvalidArgumentException
      */
     public function scan($file)
     {
         if (is_dir($file)) {
-            throw new \InvalidArgumentException('Scanner::scan() expects parameter 1 to be a file, directory given.');
-        }
-
-        if (!is_readable($file)) {
-            throw new \InvalidArgumentException('Scanner::scan() must be passed a file that is readable.');
+            throw new \InvalidArgumentException("Scanner::scan() expects parameter 1 to be a file, directory given.");
         }
 
         return $this->last = $this->handler->scan($file);
@@ -80,15 +76,14 @@ class Scanner implements ScannerInterface
      * Was the last scan a clean scan?
      *
      * @return bool
-     * @throws \BadMethodCallException
      */
     public function clean()
     {
-        if (null === $this->last) {
-            throw new \BadMethodCallException('No previous scan to report on.');
+        if (!isset($this->last)) {
+            throw new \BadMethodCallException('No previous scan to report on');
         }
 
-        return $this->last['result'] === AntivirusHandlerInterface::RESULT_OK;
+        return $this->last['result'] == AntivirusHandlerInterface::RESULT_OK;
     }
 
     /**

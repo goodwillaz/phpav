@@ -1,6 +1,6 @@
 <?php
 
-namespace Gwaz\Antivirus;
+namespace Zuba\Antivirus;
 
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Gwaz\Antivirus;
+namespace Zuba\Antivirus;
 
 interface AntivirusHandlerInterface
 {

@@ -5,8 +5,8 @@
  * Time: 1:35 PM
  */
 
-use Gwaz\Antivirus\AntivirusHandlerInterface;
-use Gwaz\Antivirus\Scanner;
+use Zuba\Antivirus\AntivirusHandlerInterface;
+use Zuba\Antivirus\Scanner;
 use Mockery as m;
 
 class ScannerTest extends PHPUnit_Framework_TestCase
